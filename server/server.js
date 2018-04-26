@@ -21,32 +21,42 @@ var mongoos = require('mongoose');
 // default:null
 // }
 // });
-var {todo} = require('./model/todo');
+var { todo } = require('./model/todo');
 var app = express();
 
 app.use(bodyParser.json());
-var todo = new todo({
-	text:""
-});
-// post method 
-app.post('/todos',(req,res)=>{
-console.log(req.body);
-todo.text = req.body.text;
-todo.save().then((doc)=>{
-console.log(doc);
-res.send(doc);
-},(e)=>{
-console.log(e);
-res.status(400).send(e);
-});
-})
 
-app.listen('3000',()=>{
-	console.log('started on port 3000');
+// post method 
+app.post('/todos', (req, res) => {
+	var todo = new todo({
+    text: ""
+});
+    console.log(req.body);
+    todo.text = req.body.text;
+    todo.save().then((doc) => {
+        console.log(doc);
+        res.send(doc);
+    }, (e) => {
+        console.log(e);
+        res.status(400).send(e);
+    });
+});
+
+// get method for todo 
+app.get('/todos',(req,res)=>{
+	todo.find().then((todos)=>{
+		res.status(200).send({TodoData:todos})
+	},(e)=>{
+		res.status(400).send(e);
+	});
+});
+
+app.listen('3000', () => {
+    console.log('started on port 3000');
 })
 
 module.exports = {
-	app:app
+    app: app
 }
 
 // var newTodo = new todo({
