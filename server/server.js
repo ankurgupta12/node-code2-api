@@ -5,6 +5,7 @@ var mongoos = require('./../mongoose');
 
 
 var mongoos = require('mongoose');
+var port = process.env.port|| 3000;
 // var todo = mongoos.model('todo',{
 // 	text:{
 // type:String,
@@ -67,8 +68,24 @@ return res.status(200).send({todo:todo});
 
 });
 
-app.listen('3000', () => {
-    console.log('started on port 3000');
+
+app.delete('/todos/:id',(req,res)=>{
+var id = req.params.id;
+if(!ObjectID.isValid(id)){
+return res.status(404).send({message:'id is not valid'});
+}
+todo.findByIdAndRemove(id).then((result)=>{
+if(!result){
+return res.status(404).send({message:"there is no data For delete"});
+}	
+return res.status(200).send({message:"successfully Deleted!..."});
+}).catch((e)=>{
+res.status(404).send({message:'Server Error'});
+});
+});
+
+app.listen(port, () => {
+    console.log('started on port'+port);
 })
 
 module.exports = {
