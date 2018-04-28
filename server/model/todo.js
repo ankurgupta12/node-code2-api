@@ -14,6 +14,16 @@ default:false
 completedAt:{
 type:Number,
 default:null
-}
+},
+tokens:[{
+	access:{
+		type:String,
+		required:true
+	},
+	token:{
+		type:String,
+		required:true
+	}
+}]
 });
 module.exports = {todo};

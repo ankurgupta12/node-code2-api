@@ -2,7 +2,11 @@ var express = require('express');
 var _lodash= require('lodash');
 var { ObjectID } = require('mongodb');
 var bodyParser = require('body-parser');
+
 var mongoos = require('./../mongoose');
+var mongo = require('mongoskin');
+var db = mongo.db("mongodb://localhost:27017/todoApp", {native_parser: true});
+db.bind('users');
 
 
 var mongoos = require('mongoose');
@@ -25,6 +29,11 @@ var port = process.env.port || 3000;
 // }
 // });
 var { todo } = require('./model/todo');
+var  user  = require('./model/user');
+// var chris  = new user();
+// chris.generateAuth(function(err,suc){
+// console.log(suc);
+// })
 var app = express();
 
 app.use(bodyParser.json());
@@ -109,6 +118,23 @@ var body = _lodash.pick(req.body,['text','completed']);
     }).catch((e)=>{
     	res.status(404).send({mess:"there is error"});
     });
+});
+app.post('/user',(req,res)=>{
+var userOb = {};
+var body = _lodash.pick(req.body,['email','password']);
+userOb.email = req.body.email;
+userOb.password = req.body.password;
+var user = new user();
+db.users.insert(userOb,function(err,user1){
+
+        return user.generateAuth().then((token)=>{
+    	res.header('authorization',token).send(user1);
+    });
+// }).catch((e)=>{
+//     	console.log("eee",e);
+// res.status(404).send(e);
+//     }); 
+});
 });
 
 app.listen(port, () => {
