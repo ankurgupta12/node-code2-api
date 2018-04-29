@@ -3,7 +3,7 @@ var _lodash = require('lodash');
 var { ObjectID } = require('mongodb');
 var jwt = require('jsonwebtoken');
 var bodyParser = require('body-parser');
-
+var { authenticate} = require('./middleware/authenticate');
 var mongoos = require('./../mongoose');
 var mongo = require('mongoskin');
 var db = mongo.db("mongodb://localhost:27017/todoApp", { native_parser: true });
@@ -126,7 +126,7 @@ app.post('/user', (req, res) => {
     var body = _lodash.pick(req.body, ['email', 'password']);
     userOb.email = req.body.email;
     userOb.password = req.body.password;
-    var token = jwt.sign({_id:user1._id,access},'abc123').toString();
+    var token = jwt.sign({email:req.body.email,access},'abc123').toString();
     userOb.token = token;
     db.users.insert(userOb, function(err, user2) {
     	
@@ -143,6 +143,15 @@ app.post('/user', (req, res) => {
         // res.status(404).send(e);
         //     }); 
     });
+});
+
+
+app.get('/user/me',authenticate, (req,res)=>{
+	 //res.setHeader('Content-Type', 'text/html');
+      //res.setHeader('authorization', '');
+    //  res.writeHead(200, { 'Content-Type': 'application/json' });
+     res.send(req.result);
+			
 });
 
 app.listen(port, () => {
