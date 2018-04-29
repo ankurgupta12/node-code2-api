@@ -1,11 +1,12 @@
 var express = require('express');
-var _lodash= require('lodash');
+var _lodash = require('lodash');
 var { ObjectID } = require('mongodb');
+var jwt = require('jsonwebtoken');
 var bodyParser = require('body-parser');
 
 var mongoos = require('./../mongoose');
 var mongo = require('mongoskin');
-var db = mongo.db("mongodb://localhost:27017/todoApp", {native_parser: true});
+var db = mongo.db("mongodb://localhost:27017/todoApp", { native_parser: true });
 db.bind('users');
 
 
@@ -29,11 +30,9 @@ var port = process.env.port || 3000;
 // }
 // });
 var { todo } = require('./model/todo');
-var  user  = require('./model/user');
-// var chris  = new user();
-// chris.generateAuth(function(err,suc){
-// console.log(suc);
-// })
+var   user   = require('./model/user');
+
+var user1 = new user({email:'',password:'',tokens:[]});
 var app = express();
 
 app.use(bodyParser.json());
@@ -96,45 +95,54 @@ app.delete('/todos/:id', (req, res) => {
 
 
 
-app.patch('/todos/:id',(req,res)=>{
-var id = req.params.id;
-var body = _lodash.pick(req.body,['text','completed']);
- if (!ObjectID.isValid(id)) {
+app.patch('/todos/:id', (req, res) => {
+    var id = req.params.id;
+    var body = _lodash.pick(req.body, ['text', 'completed']);
+    if (!ObjectID.isValid(id)) {
         return res.status(404).send({ message: 'id is not valid' });
     }
-    if(_lodash.isBoolean(body.completed) && body.completed){
+    if (_lodash.isBoolean(body.completed) && body.completed) {
 
-    	body.completedAt = new Date().getTime();
-    }else{
-    	body.completedAt = null;
-    	body.completed = false;
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completedAt = null;
+        body.completed = false;
 
     }
-    todo.findByIdAndUpdate(id,{$set:body},{new:true} ).then((todo)=>{
-    	if(!todo){
-    		return res.status(404).send({mess:"there is no Update"})
-    	}
-    	return res.status(200).send({mess:"updated successfully!..."});
-    }).catch((e)=>{
-    	res.status(404).send({mess:"there is error"});
+    todo.findByIdAndUpdate(id, { $set: body }, { new: true }).then((todo) => {
+        if (!todo) {
+            return res.status(404).send({ mess: "there is no Update" })
+        }
+        return res.status(200).send({ mess: "updated successfully!..." });
+    }).catch((e) => {
+        res.status(404).send({ mess: "there is error" });
     });
 });
-app.post('/user',(req,res)=>{
-var userOb = {};
-var body = _lodash.pick(req.body,['email','password']);
-userOb.email = req.body.email;
-userOb.password = req.body.password;
-var user = new user();
-db.users.insert(userOb,function(err,user1){
 
-        return user.generateAuth().then((token)=>{
-    	res.header('authorization',token).send(user1);
+
+app.post('/user', (req, res) => {
+    var userOb = {};
+    var access = 'auth';
+    var body = _lodash.pick(req.body, ['email', 'password']);
+    userOb.email = req.body.email;
+    userOb.password = req.body.password;
+    var token = jwt.sign({_id:user1._id,access},'abc123').toString();
+    userOb.token = token;
+    db.users.insert(userOb, function(err, user2) {
+    	
+	//user1.tokens.push({access,token});
+	// user1.save().then(()=>{
+		res.header('authorization', token).send(user2);
+	//})
+
+      
+            
+       // });
+        // }).catch((e)=>{
+        //     	console.log("eee",e);
+        // res.status(404).send(e);
+        //     }); 
     });
-// }).catch((e)=>{
-//     	console.log("eee",e);
-// res.status(404).send(e);
-//     }); 
-});
 });
 
 app.listen(port, () => {

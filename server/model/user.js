@@ -25,7 +25,7 @@ tokens:[{
 }]
 });
 
-userSchema.method.generateAuth = function(){
+userSchema.methods.generateAuth = function(){
 	var user = this;
 	var access = "auth";
 	var token = jwt.sign({_id:user._id.toHexString(),access},'abc123').toString();
@@ -34,6 +34,11 @@ userSchema.method.generateAuth = function(){
 		return token;
 	})
 };
+
 var user = mongoos.model('user',userSchema);
 
-module.exports = mongoos.model('user',userSchema);
+module.exports =  function(){ 
+	return {
+		user : user
+	}
+};
