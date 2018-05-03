@@ -1,5 +1,6 @@
 var mongoos = require('mongoose');
 var jwt = require('jsonwebtoken');
+var bcrypt = require('bcryptjs');
 var userSchema = new mongoos.Schema({
 	email:{
 type:String,
@@ -35,6 +36,21 @@ userSchema.methods.generateAuth = function(){
 	})
 };
 
+userSchema.pre('save',function(next){
+	var user = this;
+	console.log(user);
+	if(user.isModified('password')){
+		console.log(user)
+ bcrypt.genSalt(10,(err,salt)=>{
+ 	bcrypt.hash(user.password,salt,(err,hash)=>{
+ 		user.password = hash;
+ 		next();
+ 	})
+ })		
+	}else{
+		next();
+	}
+})
 var user = mongoos.model('user',userSchema);
 
 module.exports =  function(){ 

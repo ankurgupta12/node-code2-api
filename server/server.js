@@ -147,9 +147,6 @@ app.post('/user', (req, res) => {
 
 
 app.get('/user/me',authenticate, (req,res)=>{
-	 //res.setHeader('Content-Type', 'text/html');
-      //res.setHeader('authorization', '');
-    //  res.writeHead(200, { 'Content-Type': 'application/json' });
      res.send(req.result);
 			
 });
