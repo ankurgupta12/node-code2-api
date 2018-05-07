@@ -145,6 +145,32 @@ app.post('/user', (req, res) => {
     });
 });
 
+app.post('/users/login',(req,res)=>{
+	  var body = _lodash.pick(req.body, ['email', 'password']);
+	  res.send(body);
+
+	  db.users.findOne({email:body.email,password: body.password}, function(err, user) {
+    		if(!user){
+    			return res.send('there is no user');
+    		}
+    		console.log(user);
+    		return res.header('authorization', user.token).send(user);
+    		//return res.send(user);
+	//user1.tokens.push({access,token});
+	// user1.save().then(()=>{
+		//res.header('authorization', token).send(user2);
+	//})
+
+      
+            
+       // });
+        // }).catch((e)=>{
+        //     	console.log("eee",e);
+        // res.status(404).send(e);
+        //     }); 
+    });
+})
+
 
 app.get('/user/me',authenticate, (req,res)=>{
      res.send(req.result);
