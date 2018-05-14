@@ -170,7 +170,17 @@ app.post('/users/login',(req,res)=>{
         //     }); 
     });
 })
+	app.delete('/user/me/token',(req,res)=>{
+		console.log(req);
+ db.users.remove(
+        {email: req.body.email},
+        function (err) {
+            if (err) return res.status(400).send();
 
+            return res.status(200).send();
+        });
+
+	});		
 
 app.get('/user/me',authenticate, (req,res)=>{
      res.send(req.result);
